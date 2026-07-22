@@ -548,14 +548,99 @@ elif page == "Multi-Subject Comparison":
         st.error(f"Could not load HR data: {e}")
 
 # ============================================================
-# PAGE 4 — LLM‑RAG NEURO AGENT REVIEWER (STRUCTURED DICTS)
+# PAGE 4 — LLM‑RAG NEURO AGENT REVIEWER (FINAL POLISHED VIEW)
 # ============================================================
 elif page == "LLM‑RAG Neuro Explorer":
     from langchain_openai import ChatOpenAI
     import numpy as np
+    import joblib
+    import os
+    import pandas as pd
+
+    st.markdown(
+        """
+        <style>
+        .chat-bubble-user {
+            background-color:#1e1e1e;
+            padding:12px;
+            border-radius:10px;
+            margin-bottom:10px;
+            border:1px solid #444;
+        }
+        .chat-bubble-assistant {
+            background-color:#262626;
+            padding:12px;
+            border-radius:10px;
+            margin-bottom:10px;
+            border:1px solid #555;
+        }
+        .summary-card {
+            padding:15px;
+            border-radius:10px;
+            background-color:#333;
+            margin-bottom:15px;
+            border:1px solid #555;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
     st.title("🧬 Biomedical Research Assistant — Neuro‑RAG Reviewer")
 
+    # ----------------------------------------------------------
+    # Load ML models (safe fallback)
+    # ----------------------------------------------------------
+    ROOT = os.path.dirname(os.path.dirname(__file__))
+    ART = os.path.join(ROOT, "artifacts")
+
+    GLOBAL_MODEL_PATH = os.path.join(ART, "ml_global_feeling_model.pkl")
+    SUBJECT_MODELS_PATH = os.path.join(ART, "ml_subject_models.pkl")
+
+    def load_ml_models():
+        try:
+            global_data = joblib.load(GLOBAL_MODEL_PATH)
+            global_model = global_data["model"]
+            ml_features = global_data["features"]
+            subject_models = joblib.load(SUBJECT_MODELS_PATH)
+            return global_model, subject_models, ml_features
+        except Exception:
+            return None, None, None
+
+    global_model, subject_models, ml_features = load_ml_models()
+
+    # ----------------------------------------------------------
+    # ML prediction helper
+    # ----------------------------------------------------------
+    def ml_predict(row):
+        if global_model is None or ml_features is None:
+            return None, None
+
+        subj = row.get("subject")
+        x = np.array([[row.get(f) for f in ml_features]])
+
+        if subject_models and subj in subject_models:
+            model = subject_models[subj]
+        else:
+            model = global_model
+
+        proba = model.predict_proba(x)[0]
+        classes = model.classes_
+        idx = int(np.argmax(proba))
+
+        return classes[idx], float(proba[idx])
+
+    FEELING_ICONS = {
+        "relaxed": "🟢",
+        "calm": "🟦",
+        "neutral": "⚪",
+        "tense": "🟧",
+        "stressed": "🔴",
+    }
+
+    # ----------------------------------------------------------
+    # Conversation state
+    # ----------------------------------------------------------
     if "rag_chat" not in st.session_state:
         st.session_state.rag_chat = []
 
@@ -564,17 +649,40 @@ elif page == "LLM‑RAG Neuro Explorer":
     sel_conditions = st.sidebar.multiselect("Conditions", CONDITIONS, default=CONDITIONS)
     k = st.sidebar.slider("Retrieved contexts", 3, 20, 10)
 
+    # ML indicator
+    if global_model is None:
+        st.sidebar.markdown("⚠️ **ML Model:** Not Loaded (RAG‑only mode)")
+    else:
+        st.sidebar.markdown("🔬 **ML Model:** Active (LOSO + per‑subject calibration)")
+
+    # ----------------------------------------------------------
+    # Chat bubble renderer
+    # ----------------------------------------------------------
+    def render_chat_bubble(role, content):
+        if role == "user":
+            css_class = "chat-bubble-user"
+            label = "You"
+        else:
+            css_class = "chat-bubble-assistant"
+            label = "Biomedical Research Assistant"
+
+        st.markdown(
+            f"""
+            <div class="{css_class}">
+                <strong>{label}:</strong><br>{content}
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
     st.markdown("### 💬 Ask the Biomedical Research Assistant")
 
     # Conversation history
     for msg in st.session_state.rag_chat:
-        if msg["role"] == "user":
-            st.markdown(f"**You:** {msg['content']}")
-        else:
-            st.markdown(f"**Biomedical Research Assistant:** {msg['content']}")
+        render_chat_bubble(msg["role"], msg["content"])
 
     user_input = st.text_area(
-        "Ask anything about EEG/ECG reactions, healing power, blind spots, or your research question:",
+        "Ask anything about EEG/ECG reactions, feeling, blind spots, or your research question:",
         "",
         key="rag_user_input",
     )
@@ -599,31 +707,26 @@ elif page == "LLM‑RAG Neuro Explorer":
 
     asked_subject = detect_subject_from_question(user_input)
 
+    # ----------------------------------------------------------
+    # MAIN EXECUTION
+    # ----------------------------------------------------------
     if send_clicked and user_input.strip():
         st.session_state.rag_chat.append({"role": "user", "content": user_input})
 
-        # ----------------------------------------------------------
         # 1) Retrieve structured dicts from RAG
-        # ----------------------------------------------------------
         results = engine.retrieve(user_input, k=k)
 
-        # ----------------------------------------------------------
         # 2) Filter by subject (sidebar + question)
-        # ----------------------------------------------------------
         if sel_subject != "All":
             results = [r for r in results if r["row"].get("subject") == sel_subject]
 
         if asked_subject is not None:
             results = [r for r in results if r["row"].get("subject") == asked_subject]
 
-        # ----------------------------------------------------------
         # 3) Filter by condition
-        # ----------------------------------------------------------
         results = [r for r in results if r["row"].get("condition") in sel_conditions]
 
-        # ----------------------------------------------------------
-        # 4) If no data → strict RAG fallback
-        # ----------------------------------------------------------
+        # 4) Strict RAG fallback
         if len(results) == 0:
             fallback_answer = (
                 "### 1) Blind Spots\n"
@@ -637,28 +740,28 @@ elif page == "LLM‑RAG Neuro Explorer":
                 "Add more EEG/ECG chunks for this subject/condition to enable strict RAG analysis."
             )
             st.session_state.rag_chat.append({"role": "assistant", "content": fallback_answer})
+            render_chat_bubble("assistant", fallback_answer)
             st.rerun()
 
         # ----------------------------------------------------------
-        # 5) Build per-condition physiological summary
+        # 5) Build per-condition physiological + ML summary
         # ----------------------------------------------------------
         def safe_mean(values):
             arr = [v for v in values if v is not None]
-            return np.nanmean(arr) if len(arr) > 0 else np.nan
+            return float(np.nanmean(arr)) if len(arr) > 0 else np.nan
 
         cond_summary_structured = {}
+        ml_summary_structured = {}
 
         for r in results:
             row = r["row"]
             cond = row.get("condition")
 
+            # Physiological summary
             if cond not in cond_summary_structured:
                 cond_summary_structured[cond] = {
-                    "hr": [],
-                    "alpha_rel": [],
-                    "beta_rel": [],
-                    "rmssd": [],
-                    "sdnn": [],
+                    "hr": [], "alpha_rel": [], "beta_rel": [],
+                    "rmssd": [], "sdnn": []
                 }
 
             cond_summary_structured[cond]["hr"].append(row.get("hr"))
@@ -667,7 +770,14 @@ elif page == "LLM‑RAG Neuro Explorer":
             cond_summary_structured[cond]["rmssd"].append(row.get("rmssd"))
             cond_summary_structured[cond]["sdnn"].append(row.get("sdnn"))
 
-        # Convert to readable text
+            # ML predictions
+            feeling, conf = ml_predict(row)
+            if cond not in ml_summary_structured:
+                ml_summary_structured[cond] = []
+            if feeling is not None:
+                ml_summary_structured[cond].append((feeling, conf))
+
+        # Physiological summary text
         cond_summary_text = ""
         for cond, vals in cond_summary_structured.items():
             cond_summary_text += (
@@ -679,13 +789,28 @@ elif page == "LLM‑RAG Neuro Explorer":
                 f"SDNN≈{safe_mean(vals['sdnn']):.1f}\n"
             )
 
+        # ML summary text
+        ml_summary_text = ""
+        if global_model is None:
+            ml_summary_text = "(ML model not loaded — RAG‑only mode)\n"
+        else:
+            for cond, items in ml_summary_structured.items():
+                if len(items) == 0:
+                    ml_summary_text += f"- {cond}: (no ML predictions)\n"
+                else:
+                    best_feeling, best_conf = sorted(items, key=lambda x: x[1], reverse=True)[0]
+                    icon = FEELING_ICONS.get(best_feeling, "❓")
+                    ml_summary_text += (
+                        f"- {cond}: {icon} ML feeling = {best_feeling} (conf={best_conf:.2f})\n"
+                    )
+
         # ----------------------------------------------------------
         # 6) Build context text for LLM
         # ----------------------------------------------------------
         context_text = "\n\n".join([r["text"] for r in results])
 
         # ----------------------------------------------------------
-        # 7) Build LLM prompt (general-audience, strict RAG)
+        # 7) Build LLM prompt (strict RAG + ML hybrid)
         # ----------------------------------------------------------
         prompt = (
             "You are a BIOMEDICAL RESEARCH ASSISTANT specializing in simple, general‑audience explanations "
@@ -698,38 +823,26 @@ elif page == "LLM‑RAG Neuro Explorer":
             "3. When data for a condition is missing, clearly state it and use ONLY general physiological expectations.\n"
             "4. Feeling states must be chosen from: relaxed, calm, neutral, tense, stressed.\n"
             "5. Your tone must be simple, clear, and non‑technical.\n\n"
-            "Your output MUST contain EXACTLY four sections, formatted cleanly as follows:\n\n"
+            "Your output MUST contain EXACTLY four sections:\n"
             "------------------------------------------------------------\n"
             "### 1) Blind Spots\n"
-            "Clearly list which conditions have missing data and explain how this limits comparison.\n\n"
             "------------------------------------------------------------\n"
             "### 2) EEG + ECG Reaction Across Conditions\n"
-            "Provide a simple, readable comparison:\n"
-            "- For conditions WITH data → list actual HR, HRV, alpha_rel, beta_rel.\n"
-            "- For conditions WITHOUT data → describe general physiological expectations (no numbers).\n"
-            "Use short paragraphs or bullet points for clarity.\n\n"
             "------------------------------------------------------------\n"
             "### 3) Feeling‑State Interpretation\n"
-            "For EACH condition:\n"
-            "- Infer the likely feeling state using the physiological summary.\n"
-            "- For missing conditions → infer based on general expectations only.\n"
-            "Keep explanations intuitive and non‑technical.\n\n"
             "------------------------------------------------------------\n"
             "### 4) Conclusion\n"
-            "Provide a short, clear summary comparing all conditions.\n"
-            "Highlight which conditions are likely tense, neutral, calming, or relaxing.\n"
-            "Avoid medical jargon.\n"
             "------------------------------------------------------------\n\n"
             "PHYSIOLOGICAL SUMMARY (strict RAG):\n"
             f"{cond_summary_text}\n\n"
+            "ML FEELING‑STATE SUMMARY:\n"
+            f"{ml_summary_text}\n\n"
             "USER QUESTION:\n"
             f"{user_input}\n\n"
             "RETRIEVED CONTEXT:\n"
             f"{context_text}\n\n"
             "Now produce the structured BIOMEDICAL RESEARCH ASSISTANT output."
         )
-
-
 
         llm = ChatOpenAI(
             model="gpt-4o-mini",
@@ -739,5 +852,81 @@ elif page == "LLM‑RAG Neuro Explorer":
 
         answer = llm.invoke(prompt).content
 
+        # ----------------------------------------------------------
+        # 8) Final polished Hybrid Research View rendering
+        # ----------------------------------------------------------
+        st.markdown(
+            f"""
+            <div class="summary-card">
+                <h3 style="color:#fff;margin-bottom:8px;">🔎 Quick Summary</h3>
+                <p style="color:#ccc;">Subject: <strong>{asked_subject or sel_subject}</strong></p>
+                <p style="color:#ccc;">Conditions analyzed: <strong>{", ".join(sel_conditions)}</strong></p>
+                <p style="color:#ccc;">ML Model: <strong>{"Active" if global_model is not None else "Not Loaded"}</strong></p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        df_summary = pd.DataFrame([
+            {
+                "Condition": cond,
+                "HR": safe_mean(vals["hr"]),
+                "Alpha_rel": safe_mean(vals["alpha_rel"]),
+                "Beta_rel": safe_mean(vals["beta_rel"]),
+                "RMSSD": safe_mean(vals["rmssd"]),
+                "SDNN": safe_mean(vals["sdnn"]),
+            }
+            for cond, vals in cond_summary_structured.items()
+        ])
+
+        if not df_summary.empty:
+            st.markdown("#### 📊 Condition‑wise Physiological Summary")
+            st.dataframe(df_summary.style.highlight_max(axis=0), use_container_width=True)
+
+        if global_model is not None:
+            st.markdown("#### 🔬 ML Feeling‑State Summary")
+            for cond, items in ml_summary_structured.items():
+                st.markdown(f"**{cond}**")
+                if len(items) == 0:
+                    st.info("No ML predictions for this condition.")
+                else:
+                    best_feeling, best_conf = sorted(items, key=lambda x: x[1], reverse=True)[0]
+                    icon = FEELING_ICONS.get(best_feeling, "❓")
+                    st.markdown(f"{icon} **Feeling:** {best_feeling} (conf={best_conf:.2f})")
+                    st.progress(best_conf)
+
+        st.markdown("#### 📘 Structured Neuro‑RAG + ML Report")
+        try:
+            part1 = answer.split("### 2) EEG + ECG Reaction Across Conditions")[0]
+            part2_full = answer.split("### 2) EEG + ECG Reaction Across Conditions")[1]
+            part2 = part2_full.split("### 3) Feeling‑State Interpretation")[0]
+            part3_full = answer.split("### 3) Feeling‑State Interpretation")[1]
+            part3 = part3_full.split("### 4) Conclusion")[0]
+            part4 = answer.split("### 4) Conclusion")[1]
+        except Exception:
+            part1, part2, part3, part4 = answer, "", "", ""
+
+        with st.expander("🔍 Blind Spots", expanded=True):
+            st.markdown(part1)
+
+        with st.expander("🧠 EEG + ECG Reaction Across Conditions", expanded=True):
+            if part2:
+                st.markdown("### 2) EEG + ECG Reaction Across Conditions" + part2)
+            else:
+                st.markdown("No structured EEG + ECG section parsed.")
+
+        with st.expander("💬 Feeling‑State Interpretation", expanded=True):
+            if part3:
+                st.markdown("### 3) Feeling‑State Interpretation" + part3)
+            else:
+                st.markdown("No structured Feeling‑State section parsed.")
+
+        with st.expander("📘 Conclusion", expanded=True):
+            if part4:
+                st.markdown("### 4) Conclusion" + part4)
+            else:
+                st.markdown("No structured Conclusion section parsed.")
+
+        render_chat_bubble("assistant", answer)
         st.session_state.rag_chat.append({"role": "assistant", "content": answer})
         st.rerun()

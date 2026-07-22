@@ -13,6 +13,11 @@ from ecg_features import compute_ecg_features
 from build_feature_database import build_feature_database
 from create_embeddings import create_embeddings
 from generate_neuro_report import generate_neuro_report
+# LLM_RAG/main.py
+from ml_models import train_feeling_model
+
+if __name__ == "__main__":
+    train_feeling_model()
 
 
 def main():
