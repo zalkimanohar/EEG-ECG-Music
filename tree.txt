@@ -1,0 +1,280 @@
+.
+├── app
+│   ├── __init__.py
+│   ├── assets
+│   │   └── icons
+│   ├── pages
+│   │   ├── __pycache__
+│   │   │   ├── global_insights.cpython-311.pyc
+│   │   │   ├── global_insights.cpython-313.pyc
+│   │   │   ├── multi_subject_comparison.cpython-311.pyc
+│   │   │   ├── multi_subject_comparison.cpython-313.pyc
+│   │   │   ├── neuro_agent_reviewer.cpython-311.pyc
+│   │   │   ├── neuro_agent_reviewer.cpython-313.pyc
+│   │   │   ├── subject_explorer.cpython-311.pyc
+│   │   │   └── subject_explorer.cpython-313.pyc
+│   │   ├── global_insights.py
+│   │   ├── multi_subject_comparison.py
+│   │   ├── neuro_agent_reviewer.py
+│   │   └── subject_explorer.py
+│   ├── streamlit_app.py
+│   └── streamlit_backUp.py
+├── artifacts
+│   ├── corpus.parquet
+│   ├── ecg_features.parquet
+│   ├── eeg_features.parquet
+│   ├── embeddings.faiss
+│   ├── embeddings.npy
+│   ├── ep.parquet
+│   ├── metadata.json
+│   ├── raw_ecg
+│   │   ├── ankit_meditation.npy
+│   │   ├── ankit_nomusic.npy
+│   │   ├── ankit_stress.npy
+│   │   ├── ankit_waterfall.npy
+│   │   ├── atul_meditation.npy
+│   │   ├── atul_nomusic.npy
+│   │   ├── atul_stress.npy
+│   │   ├── atul_waterfall.npy
+│   │   ├── chirag_meditation.npy
+│   │   ├── chirag_stress.npy
+│   │   ├── daksh_meditation.npy
+│   │   ├── daksh_stress.npy
+│   │   ├── daksh_waterfall.npy
+│   │   ├── deepa_meditation.npy
+│   │   ├── deepa_nomusic.npy
+│   │   ├── deepa_stress.npy
+│   │   ├── deepa_waterfall.npy
+│   │   ├── manohar_meditation.npy
+│   │   ├── manohar_nomusic.npy
+│   │   ├── manohar_stress.npy
+│   │   ├── manohar_waterfall.npy
+│   │   ├── nicolas_meditation.npy
+│   │   ├── nicolas_nomusic.npy
+│   │   ├── nicolas_stress.npy
+│   │   ├── nicolas_waterfall.npy
+│   │   ├── omar_meditation.npy
+│   │   ├── omar_nomusic.npy
+│   │   ├── omar_stress.npy
+│   │   ├── patrik_nomusic.npy
+│   │   ├── patrik_stress.npy
+│   │   ├── patrik_waterfall.npy
+│   │   ├── pavithra_meditation.npy
+│   │   ├── pavithra_nomusic.npy
+│   │   ├── pavithra_stress.npy
+│   │   ├── pavithra_waterfall.npy
+│   │   ├── piyush_meditation.npy
+│   │   ├── piyush_nomusic.npy
+│   │   ├── piyush_stress.npy
+│   │   ├── piyush_waterfall.npy
+│   │   ├── saiteja_meditation.npy
+│   │   ├── saiteja_nomusic.npy
+│   │   ├── saiteja_stress.npy
+│   │   ├── saiteja_waterfall.npy
+│   │   ├── shalva_nomusic.npy
+│   │   ├── shalva_stress.npy
+│   │   ├── tej_meditation.npy
+│   │   ├── tej_nomusic.npy
+│   │   ├── tej_stress.npy
+│   │   └── tej_waterfall.npy
+│   ├── raw_eeg
+│   │   ├── ankit_meditation.npy
+│   │   ├── ankit_nomusic.npy
+│   │   ├── ankit_stress.npy
+│   │   ├── ankit_waterfall.npy
+│   │   ├── atul_meditation.npy
+│   │   ├── atul_nomusic.npy
+│   │   ├── atul_stress.npy
+│   │   ├── atul_waterfall.npy
+│   │   ├── chirag_meditation.npy
+│   │   ├── chirag_stress.npy
+│   │   ├── daksh_meditation.npy
+│   │   ├── daksh_stress.npy
+│   │   ├── daksh_waterfall.npy
+│   │   ├── deepa_meditation.npy
+│   │   ├── deepa_nomusic.npy
+│   │   ├── deepa_stress.npy
+│   │   ├── deepa_waterfall.npy
+│   │   ├── manohar_meditation.npy
+│   │   ├── manohar_nomusic.npy
+│   │   ├── manohar_stress.npy
+│   │   ├── manohar_waterfall.npy
+│   │   ├── nicolas_meditation.npy
+│   │   ├── nicolas_nomusic.npy
+│   │   ├── nicolas_stress.npy
+│   │   ├── nicolas_waterfall.npy
+│   │   ├── omar_meditation.npy
+│   │   ├── omar_nomusic.npy
+│   │   ├── omar_stress.npy
+│   │   ├── patrik_nomusic.npy
+│   │   ├── patrik_stress.npy
+│   │   ├── patrik_waterfall.npy
+│   │   ├── pavithra_meditation.npy
+│   │   ├── pavithra_nomusic.npy
+│   │   ├── pavithra_stress.npy
+│   │   ├── pavithra_waterfall.npy
+│   │   ├── piyush_meditation.npy
+│   │   ├── piyush_nomusic.npy
+│   │   ├── piyush_stress.npy
+│   │   ├── piyush_waterfall.npy
+│   │   ├── saiteja_meditation.npy
+│   │   ├── saiteja_nomusic.npy
+│   │   ├── saiteja_stress.npy
+│   │   ├── saiteja_waterfall.npy
+│   │   ├── shalva_nomusic.npy
+│   │   ├── shalva_stress.npy
+│   │   ├── tej_meditation.npy
+│   │   ├── tej_nomusic.npy
+│   │   ├── tej_stress.npy
+│   │   └── tej_waterfall.npy
+│   ├── raw.parquet
+│   └── rec.parquet
+├── data
+│   ├── Anit_meditation_music_events.txt
+│   ├── Ankit_meditation_music.wav
+│   ├── Ankit_nomusic_events.txt
+│   ├── Ankit_nomusic.wav
+│   ├── Ankit_stress_music-events.txt
+│   ├── Ankit_stress_music.wav
+│   ├── Ankit_waterfall_music_events.txt
+│   ├── Ankit_waterfall_music.wav
+│   ├── atul_meditation_music_events.txt
+│   ├── atul_meditation_music.wav
+│   ├── atul_nomusic_events.txt
+│   ├── atul_nomusic.wav
+│   ├── atul_stress_music_events.txt
+│   ├── atul_stress_music.wav
+│   ├── atul_waterfall_music_events.txt
+│   ├── atul_waterfall_music.wav
+│   ├── Chirag-MeditationMusic.wav
+│   ├── Chirag-NoMusic-events.txt
+│   ├── Chirag-NoMusic.wav
+│   ├── Chirag-StressMusic-events.txt
+│   ├── Chirag-StressMusic.wav
+│   ├── Chirag-WaterFall-events.txt
+│   ├── Chirag-WaterFall.wav
+│   ├── ChiragMeditationMusic-events.txt
+│   ├── DakshMeditationMusic-events.txt
+│   ├── DakshMeditationMusic.wav
+│   ├── DakshNoMusic-events.txt
+│   ├── DakshNoMusic.wav
+│   ├── DakshStressMusic-events.txt
+│   ├── DakshStressMusic.wav
+│   ├── DakshWaterfallMusic-events.txt
+│   ├── DakshWaterfallMusic.wav
+│   ├── DeepaMeditationMusic-events.txt
+│   ├── DeepaMeditationMusic.wav
+│   ├── DeepaNomusic-events.txt
+│   ├── DeepaNomusic.wav
+│   ├── DeepaStressMusic-events.txt
+│   ├── DeepaStressMusic.wav
+│   ├── DeepaWaterfallMusic-events.txt
+│   ├── DeepaWaterfallMusic.wav
+│   ├── manohar_meditation_music_events.txt
+│   ├── manohar_meditation_music.wav
+│   ├── manohar_nomusic_events.txt
+│   ├── manohar_nomusic.wav
+│   ├── manohar_stress_music_events.txt
+│   ├── manohar_stress_music.wav
+│   ├── manohar_waterfall_music_events.txt
+│   ├── manohar_waterfall_music.wav
+│   ├── Nicolas_meditation_music_events.txt
+│   ├── Nicolas_meditation_music.wav
+│   ├── Nicolas_nomusic_events.txt
+│   ├── Nicolas_nomusic.wav
+│   ├── Nicolas_stress_music_events.txt
+│   ├── Nicolas_stress_music.wav
+│   ├── Nicolas_waterfall_music_events.txt
+│   ├── Nicolas_waterfall_music.wav
+│   ├── Omar-MeditationMusic-events.txt
+│   ├── Omar-MeditationMusic.wav
+│   ├── Omar-nomusic-events.txt
+│   ├── Omar-nomusic.wav
+│   ├── Omar-StressMusic-events.txt
+│   ├── Omar-StressMusic.wav
+│   ├── Omar-WaterFall-Relax-events.txt
+│   ├── Omar-WaterFall-Relax.wav
+│   ├── PatrikMeditaationMusic.wav
+│   ├── patrikmeditationMusic_events.txt
+│   ├── PatrikNomusic-events.txt
+│   ├── PatrikNomusic.wav
+│   ├── PatrikStressMusic-events.txt
+│   ├── PatrikStressMusic.wav
+│   ├── PatrikWaterfallMusic-events.txt
+│   ├── PatrikWaterfallMusic.wav
+│   ├── pavithra_meditation_music_events.txt
+│   ├── pavithra_meditation_music.wav
+│   ├── pavithra_nomusic_events.txt
+│   ├── pavithra_nomusic.wav
+│   ├── pavithra_stress_music_events.txt
+│   ├── pavithra_stress_music.wav
+│   ├── pavithra_waterfall_music_events.txt
+│   ├── pavithra_waterfall_music.wav
+│   ├── piyush_meditation_music_events.txt
+│   ├── piyush_meditation_music.wav
+│   ├── piyush_nomusic_events.txt
+│   ├── piyush_nomusic.wav
+│   ├── piyush_stress_music_events.txt
+│   ├── piyush_stress_music.wav
+│   ├── piyush_waterfall_music_events.txt
+│   ├── piyush_waterfall_music.wav
+│   ├── saiteja_meditation_music_events.txt
+│   ├── saiteja_meditation_music.wav
+│   ├── saiteja_nomusic_events.txt
+│   ├── saiteja_nomusic.wav
+│   ├── saiteja_stress_music_events.txt
+│   ├── saiteja_stress_music.wav
+│   ├── saiteja_waterfall_music_events.txt
+│   ├── saiteja_waterfall_music.wav
+│   ├── Shalva-nomusic-events.txt
+│   ├── Shalva-nomusic.wav
+│   ├── Shalva-StressMusica-events.txt
+│   ├── Shalva-StressMusica.wav
+│   ├── Shalva-WaterFall-Relax-events.txt
+│   ├── Shalva-WaterFall-Relax.wav
+│   ├── Tej-MeditationMusic-events.txt
+│   ├── Tej-MeditationMusic.wav
+│   ├── Tej-nomusic-events.txt
+│   ├── Tej-nomusic.wav
+│   ├── Tej-StressMusic-events.txt
+│   ├── Tej-StressMusic.wav
+│   ├── Tej-Waterfall-Relax-events.txt
+│   └── Tej-Waterfall-Relax.wav
+├── eeg_ecg_data.rar
+├── installation.sh
+├── LLM_RAG
+│   ├── __pycache__
+│   │   ├── build_feature_database.cpython-311.pyc
+│   │   ├── config.cpython-311.pyc
+│   │   ├── create_embeddings.cpython-311.pyc
+│   │   ├── ecg_features.cpython-311.pyc
+│   │   ├── eeg_features.cpython-311.pyc
+│   │   ├── generate_neuro_report.cpython-311.pyc
+│   │   ├── load_spike_wav.cpython-311.pyc
+│   │   ├── parse_events.cpython-311.pyc
+│   │   ├── rag_query_engine.cpython-311.pyc
+│   │   ├── rag_query_engine.cpython-313.pyc
+│   │   ├── scan_dataset.cpython-311.pyc
+│   │   └── signal_processing.cpython-311.pyc
+│   ├── build_feature_database.py
+│   ├── config.py
+│   ├── create_embeddings.py
+│   ├── ecg_features.py
+│   ├── eeg_features.py
+│   ├── event_converter.py
+│   ├── generate_neuro_report.py
+│   ├── load_spike_wav.py
+│   ├── main.py
+│   ├── parse_events.py
+│   ├── rag_query_engine.py
+│   ├── scan_dataset.py
+│   └── signal_processing.py
+├── logs
+│   └── pipeline.log
+├── Music_Brain_Heart_EEG_ECG.ipynb
+├── README.md
+├── requirements.txt
+├── run_pipeline.sh
+└── tree.txt
+
+13 directories, 265 files
