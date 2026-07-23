@@ -146,30 +146,34 @@ page = st.sidebar.radio(
 )
 
 # ============================================================
-# PAGE 1 — GLOBAL INSIGHTS
+# PAGE 1 — GLOBAL INSIGHTS (FULLY REVIEWED & CUSTOMIZED)
 # ============================================================
 if page == "Global Insights":
     st.title("📊 Global Insights — Complete Dataset")
 
+    # ----------------------------------------------------------
     # Basic schema check
+    # ----------------------------------------------------------
     if "subject" not in rec.columns or "condition" not in rec.columns:
         st.error("rec.parquet is missing 'subject' or 'condition' columns.")
         st.write("Columns:", rec.columns.tolist())
         st.stop()
 
+    # ----------------------------------------------------------
     # Summary metrics
+    # ----------------------------------------------------------
     colA, colB, colC, colD = st.columns(4)
     colA.metric("Participants", rec["subject"].nunique())
     colB.metric("Recordings", len(rec))
     colC.metric("Conditions", rec["condition"].nunique())
-    colD.metric("Good ECG", "N/A")  # ecg_ok optional, avoid dependency
+    colD.metric("Good ECG", "N/A")  # ecg_ok optional
 
-    st.subheader("Statistical Tests")
+    st.markdown("### 📐 Statistical Tests on Alpha Power")
 
     import scipy.stats as stats
 
     # ----------------------------------------------------------
-    # Alpha statistical tests (safe even if state missing)
+    # Alpha statistical tests
     # ----------------------------------------------------------
     if alpha_source is None or alpha_col is None:
         st.info("No alpha column found in eeg_features or ep — showing HR only.")
@@ -182,7 +186,9 @@ if page == "Global Insights":
         ep_state = ep_state[ep_state["state"].isin(["closed", "open"])]
         ep_closed = ep_state[ep_state["state"] == "closed"]
 
-        # Wilcoxon (closed vs open)
+        # ------------------------------------------------------
+        # Wilcoxon (Eyes Closed vs Eyes Open)
+        # ------------------------------------------------------
         piv = ep_state.pivot_table(index="subject", columns="state",
                                    values=alpha_col, aggfunc="mean")
 
@@ -194,7 +200,9 @@ if page == "Global Insights":
             except Exception:
                 wil_p = None
 
-        # Friedman (conditions)
+        # ------------------------------------------------------
+        # Friedman (Across Conditions)
+        # ------------------------------------------------------
         pv = ep_closed.pivot_table(index="subject", columns="condition",
                                    values=alpha_col, aggfunc="mean")
         pv = pv.reindex(columns=CONDITIONS)
@@ -214,39 +222,137 @@ if page == "Global Insights":
                 fr_p = None
 
         colE, colF = st.columns(2)
-        colE.metric("Wilcoxon p", f"{wil_p:.4f}" if wil_p is not None else "N/A")
-        colF.metric("Friedman p", f"{fr_p:.4f}" if fr_p is not None else "N/A")
+        colE.metric("Wilcoxon p (Closed vs Open)", f"{wil_p:.4f}" if wil_p else "N/A")
+        colF.metric("Friedman p (Across Conditions)", f"{fr_p:.4f}" if fr_p else "N/A")
 
-        # Berger Effect plot
+        # ------------------------------------------------------
+        # Berger Effect Plot
+        # ------------------------------------------------------
         st.subheader("🧠 Berger Effect — Alpha (Eyes Closed vs Open)")
         alpha_state = ep_state.groupby("state")[alpha_col].mean()
 
-        fig, ax = plt.subplots(figsize=(5, 3))
+        fig, ax = plt.subplots(figsize=(6, 3))
         ax.bar(alpha_state.index, alpha_state.values,
                color=[C_STATE.get(s, "#4c72b0") for s in alpha_state.index])
         ax.set_ylabel("Mean Alpha (rel)")
+        ax.set_title("Alpha Increase When Eyes Close", loc="left")
         style(ax)
         st.pyplot(fig)
 
-        # Alpha by condition
+        # ------------------------------------------------------
+        # Alpha by Condition
+        # ------------------------------------------------------
         st.subheader("🎼 Alpha (Eyes Closed) by Music Condition")
         alpha_cond = ep_closed.groupby("condition")[alpha_col].mean()
 
-        fig, ax = plt.subplots(figsize=(6, 3))
+        fig, ax = plt.subplots(figsize=(7, 3))
         colors = [C_COND.get(c, "#4c72b0") for c in alpha_cond.index]
         ax.bar([COND_EN.get(c, c) for c in alpha_cond.index],
                alpha_cond.values, color=colors)
         ax.set_ylabel("Mean Alpha (rel)")
+        ax.set_title("Relaxation Signature Across Sound Conditions", loc="left")
         style(ax)
         st.pyplot(fig)
 
     # ----------------------------------------------------------
-    # 💓 Heart Rate by Condition (SAFE FIX)
+    # ⭐ NEW: SUBJECT-WISE SCATTER PLOT (Eyes-Closed Alpha)
+    # ----------------------------------------------------------
+    st.subheader("🧑‍🔬 Subject-wise Alpha (Eyes Closed) — Each Dot is One Person")
+    st.markdown(
+        "This plot shows **inter-subject variability** in relaxation response. "
+        "Each dot represents one participant’s mean alpha power during eyes-closed epochs."
+    )
+
+    if alpha_source is not None and alpha_col is not None:
+        ep_closed = alpha_source[alpha_source["state"] == "closed"]
+        metric = ep_closed.groupby("subject")[alpha_col].mean()
+
+        fig, ax = plt.subplots(figsize=(10, 4))
+        ax.scatter(metric.index, metric.values,
+                   s=140, color=C_ALPHA, edgecolor="white", linewidth=1.4)
+
+        for s, v in metric.items():
+            ax.text(s, v + 0.005, f"{v:.2f}", ha="center", fontsize=9, color=INK2)
+
+        ax.set_ylabel("Relative Alpha (Eyes Closed)")
+        ax.set_title("Inter-Subject Variability in Relaxation Response", loc="left")
+        ax.set_xticks(range(len(metric.index)))
+        ax.set_xticklabels(metric.index, rotation=45)
+
+        style(ax, grid_axis="y")
+        st.pyplot(fig)
+
+    else:
+        st.info("Alpha source missing — cannot plot subject-wise alpha.")
+
+    # ----------------------------------------------------------
+    # ⭐ NEW: GLOBAL CONDITION-WISE BAR + SCATTER + SD (Eyes-Closed Alpha)
+    # ----------------------------------------------------------
+    st.subheader("📊 Condition-wise Alpha (Eyes Closed) — Mean, Variability & Individuals")
+    st.markdown(
+        "This plot shows **group-level trends (bars)**, **variability (SD)**, and "
+        "**individual subject responses (scatter)** for each condition. "
+        "It summarizes the entire dataset and belongs in Global Insights."
+    )
+
+    if alpha_source is not None and alpha_col is not None:
+        ep_closed = alpha_source[alpha_source["state"] == "closed"]
+
+        pv = ep_closed.pivot_table(
+            index="subject",
+            columns="condition",
+            values=alpha_col,
+            aggfunc="mean",
+        ).reindex(columns=CONDITIONS)
+
+        means = pv.mean()
+        stds  = pv.std()
+
+        fig, ax = plt.subplots(figsize=(10, 4))
+        xpos = np.arange(len(CONDITIONS))
+
+        # Bars (mean ± SD)
+        ax.bar(
+            xpos,
+            means.values,
+            yerr=stds.values,
+            capsize=6,
+            color=[C_COND[c] for c in CONDITIONS],
+            alpha=0.75,
+            edgecolor="black"
+        )
+
+        # Scatter (individual subjects)
+        for i, c in enumerate(CONDITIONS):
+            ax.scatter(
+                np.repeat(i, len(pv)),
+                pv[c].values,
+                color="black",
+                s=60,
+                alpha=0.85,
+                edgecolor="white",
+                linewidth=1.2
+            )
+
+        ax.set_xticks(xpos)
+        ax.set_xticklabels([COND_EN[c] for c in CONDITIONS])
+        ax.set_ylabel("Relative Alpha (Eyes Closed)")
+        ax.set_title("Alpha Power Across Conditions — Mean, Variability & Individual Subjects", loc="left")
+
+        style(ax, grid_axis="y")
+        st.pyplot(fig)
+
+    else:
+        st.info("Alpha source missing — cannot plot condition-wise alpha.")
+
+
+    # ----------------------------------------------------------
+    # 💓 Heart Rate by Condition
     # ----------------------------------------------------------
     st.subheader("💓 Heart Rate by Condition")
+    st.markdown("Mean heart rate across sound conditions, averaged across all subjects.")
 
     try:
-        # Load HR from ecg_features.parquet (correct location)
         ecg_feat = pd.read_parquet(ART / "ecg_features.parquet")
 
         if "hr" not in ecg_feat.columns:
@@ -254,11 +360,12 @@ if page == "Global Insights":
         else:
             hr_cond = ecg_feat.groupby("condition")["hr"].mean()
 
-            fig, ax = plt.subplots(figsize=(6, 3))
+            fig, ax = plt.subplots(figsize=(7, 3))
             colors = [C_COND.get(c, "#4c72b0") for c in hr_cond.index]
             ax.bar([COND_EN.get(c, c) for c in hr_cond.index],
                    hr_cond.values, color=colors)
             ax.set_ylabel("Heart Rate (bpm)")
+            ax.set_title("Heart Rate Across Sound Conditions", loc="left")
             style(ax)
             st.pyplot(fig)
 
@@ -444,13 +551,13 @@ elif page == "Subject Explorer":
     style(ax, grid_axis="both")
     st.pyplot(fig)
 # ============================================================
-# PAGE 3 — MULTI-SUBJECT COMPARISON
+# PAGE 3 — MULTI-SUBJECT COMPARISON (FULLY REVIEWED & CUSTOMIZED)
 # ============================================================
 elif page == "Multi-Subject Comparison":
     st.title("👥 Multi-Subject Comparison Dashboards")
 
     # ----------------------------------------------------------
-    # 🔧 FIXED CONDITION ORDER
+    # Fixed condition order (consistent across dashboard)
     # ----------------------------------------------------------
     CONDITION_ORDER = ["nomusic", "stress", "waterfall", "meditation"]
 
@@ -462,7 +569,11 @@ elif page == "Multi-Subject Comparison":
     }
 
     subjects = sorted(rec["subject"].unique())
-    sel_subjects = st.sidebar.multiselect("Select subjects", subjects, default=subjects[:4])
+    sel_subjects = st.sidebar.multiselect(
+        "Select subjects",
+        subjects,
+        default=subjects[:4]
+    )
 
     if not sel_subjects:
         st.info("Select at least one subject.")
@@ -471,6 +582,12 @@ elif page == "Multi-Subject Comparison":
     # ----------------------------------------------------------
     # 🧠 Alpha (Eyes Closed) Across Subjects & Conditions
     # ----------------------------------------------------------
+    st.subheader("🧠 Alpha (Eyes Closed) Across Subjects & Conditions")
+    st.markdown(
+        "This plot shows **how each selected subject’s alpha power changes across sound conditions**. "
+        "Each line represents one subject."
+    )
+
     if alpha_source is not None and alpha_col is not None:
         ep_closed = alpha_source[alpha_source["state"] == "closed"]
         df_alpha = ep_closed[ep_closed["subject"].isin(sel_subjects)]
@@ -480,35 +597,34 @@ elif page == "Multi-Subject Comparison":
             columns="condition",
             values=alpha_col,
             aggfunc="mean",
-        )
+        ).reindex(columns=CONDITION_ORDER)
 
-        # 🔧 FIX: enforce correct condition order
-        pv = pv.reindex(columns=CONDITION_ORDER)
-
-        st.subheader("🧠 Alpha (Eyes Closed) Across Subjects & Conditions")
         fig, ax = plt.subplots(figsize=(10, 4))
         xpos = np.arange(len(CONDITION_ORDER))
 
         for s in sel_subjects:
             if s in pv.index:
                 vals = pv.loc[s].values
-                ax.plot(xpos, vals, "-o", label=str(s))
+                ax.plot(xpos, vals, "-o", label=str(s), linewidth=1.8)
 
         ax.set_xticks(xpos)
         ax.set_xticklabels([COND_EN_ORDER[c] for c in CONDITION_ORDER])
         ax.set_ylabel("Mean Alpha (Eyes Closed)")
-        ax.set_title("Alpha Across Conditions — Selected Subjects")
+        ax.set_title("Alpha Across Conditions — Selected Subjects", loc="left")
         ax.legend(title="Subject", bbox_to_anchor=(1.02, 1), loc="upper left")
         style(ax)
         st.pyplot(fig)
 
     else:
         st.info("Alpha source missing — cannot plot multi-subject alpha.")
-
+    
     # ----------------------------------------------------------
     # 💓 Heart Rate Across Subjects & Conditions
     # ----------------------------------------------------------
     st.subheader("💓 Heart Rate Across Subjects & Conditions")
+    st.markdown(
+        "This plot shows **how heart rate changes across conditions** for each selected subject."
+    )
 
     try:
         ecg_feat = pd.read_parquet(ART / "ecg_features.parquet")
@@ -523,10 +639,7 @@ elif page == "Multi-Subject Comparison":
             columns="condition",
             values="hr",
             aggfunc="mean"
-        )
-
-        # 🔧 FIX: enforce correct condition order
-        pv_hr = pv_hr.reindex(columns=CONDITION_ORDER)
+        ).reindex(columns=CONDITION_ORDER)
 
         fig, ax = plt.subplots(figsize=(10, 4))
         xpos = np.arange(len(CONDITION_ORDER))
@@ -534,12 +647,12 @@ elif page == "Multi-Subject Comparison":
         for s in sel_subjects:
             if s in pv_hr.index:
                 vals = pv_hr.loc[s].values
-                ax.plot(xpos, vals, "-o", label=str(s))
+                ax.plot(xpos, vals, "-o", label=str(s), linewidth=1.8)
 
         ax.set_xticks(xpos)
         ax.set_xticklabels([COND_EN_ORDER[c] for c in CONDITION_ORDER])
         ax.set_ylabel("Heart Rate (bpm)")
-        ax.set_title("Heart Rate Across Conditions — Selected Subjects")
+        ax.set_title("Heart Rate Across Conditions — Selected Subjects", loc="left")
         ax.legend(title="Subject", bbox_to_anchor=(1.02, 1), loc="upper left")
         style(ax)
         st.pyplot(fig)
