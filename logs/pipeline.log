@@ -1,0 +1,444 @@
+============================================================
+   EEG + ECG + LLM‑RAG PIPELINE RUN
+   Timestamp: Tue Jul 28 13:57:40 CEST 2026
+============================================================
+
+------------------------------------------------------------
+[RUN] 0/11 - config
+------------------------------------------------------------
+[DONE] 0/11 - config
+
+------------------------------------------------------------
+[RUN] 1/11 - Scan dataset
+------------------------------------------------------------
+[EEG_ECG_LLM_RAG] Scanning dataset...
+[EEG_ECG_LLM_RAG] Saved rec.parquet → /Users/manoharazalki/EEG-ECG-Music/artifacts/rec.parquet
+[EEG_ECG_LLM_RAG] Total recordings: 56
+     subject  ... duration_sec
+0      ankit  ...         None
+1      ankit  ...         None
+2      ankit  ...         None
+3      ankit  ...         None
+4     chirag  ...         None
+5     chirag  ...         None
+6     chirag  ...         None
+7     chirag  ...         None
+8      daksh  ...         None
+9      daksh  ...         None
+10     daksh  ...         None
+11     daksh  ...         None
+12     deepa  ...         None
+13     deepa  ...         None
+14     deepa  ...         None
+15     deepa  ...         None
+16   nicolas  ...         None
+17   nicolas  ...         None
+18   nicolas  ...         None
+19   nicolas  ...         None
+20      omar  ...         None
+21      omar  ...         None
+22      omar  ...         None
+23      omar  ...         None
+24    patrik  ...         None
+25    patrik  ...         None
+26    patrik  ...         None
+27    patrik  ...         None
+28    shalva  ...         None
+29    shalva  ...         None
+30    shalva  ...         None
+31    shalva  ...         None
+32       tej  ...         None
+33       tej  ...         None
+34       tej  ...         None
+35       tej  ...         None
+36      atul  ...         None
+37      atul  ...         None
+38      atul  ...         None
+39      atul  ...         None
+40   manohar  ...         None
+41   manohar  ...         None
+42   manohar  ...         None
+43   manohar  ...         None
+44  pavithra  ...         None
+45  pavithra  ...         None
+46  pavithra  ...         None
+47  pavithra  ...         None
+48    piyush  ...         None
+49    piyush  ...         None
+50    piyush  ...         None
+51    piyush  ...         None
+52   saiteja  ...         None
+53   saiteja  ...         None
+54   saiteja  ...         None
+55   saiteja  ...         None
+
+[56 rows x 5 columns]
+[DONE] 1/11 - Scan dataset
+
+------------------------------------------------------------
+[RUN] 2/11 - Load EEG+ECG WAV files
+------------------------------------------------------------
+[EEG_ECG_LLM_RAG] Loading EEG+ECG WAV files...
+[EEG_ECG_LLM_RAG] Saved raw.parquet
+     subject   condition  ...    fs duration_sec
+0      ankit  meditation  ...  5000     121.4716
+1      ankit     nomusic  ...  5000     120.4814
+2      ankit      stress  ...  5000     122.1632
+3      ankit   waterfall  ...  5000     121.1054
+4     chirag   waterfall  ...  5000     121.6238
+5     chirag  meditation  ...  5000     120.0788
+6     chirag     nomusic  ...  5000     122.6008
+7     chirag      stress  ...  5000     121.7682
+8      daksh  meditation  ...  5000     120.9522
+9      daksh     nomusic  ...  5000     120.7378
+10     daksh      stress  ...  5000     121.4470
+11     daksh   waterfall  ...  5000     120.3868
+12     deepa  meditation  ...  5000     120.9080
+13     deepa     nomusic  ...  5000     121.1832
+14     deepa      stress  ...  5000     117.2634
+15     deepa   waterfall  ...  5000     121.1884
+16   nicolas  meditation  ...  5000     121.4698
+17   nicolas     nomusic  ...  5000     120.8540
+18   nicolas      stress  ...  5000     120.8472
+19   nicolas   waterfall  ...  5000     120.5248
+20      omar  meditation  ...  5000     120.8602
+21      omar      stress  ...  5000     120.7086
+22      omar     nomusic  ...  5000     119.3516
+23      omar   waterfall  ...  5000     125.6450
+24    patrik  meditation  ...  5000     120.5572
+25    patrik     nomusic  ...  5000     120.7508
+26    patrik      stress  ...  5000     120.7750
+27    patrik   waterfall  ...  5000     120.6276
+28    shalva     nomusic  ...  5000     120.7240
+29    shalva  meditation  ...  5000     121.0948
+30    shalva      stress  ...  5000     121.2562
+31    shalva   waterfall  ...  5000     121.6170
+32       tej  meditation  ...  5000     120.6890
+33       tej      stress  ...  5000     121.2090
+34       tej   waterfall  ...  5000     124.6584
+35       tej     nomusic  ...  5000     121.3164
+36      atul  meditation  ...  5000     130.0142
+37      atul     nomusic  ...  5000     123.7534
+38      atul      stress  ...  5000     126.6926
+39      atul   waterfall  ...  5000     127.0988
+40   manohar  meditation  ...  5000     122.9084
+41   manohar     nomusic  ...  5000     123.5114
+42   manohar      stress  ...  5000     121.7662
+43   manohar   waterfall  ...  5000     122.1398
+44  pavithra  meditation  ...  5000     123.9364
+45  pavithra     nomusic  ...  5000     122.1470
+46  pavithra      stress  ...  5000     122.1924
+47  pavithra   waterfall  ...  5000     122.4580
+48    piyush  meditation  ...  5000     123.3542
+49    piyush     nomusic  ...  5000     125.7312
+50    piyush      stress  ...  5000     122.8070
+51    piyush   waterfall  ...  5000     127.5474
+52   saiteja  meditation  ...  5000     123.0940
+53   saiteja     nomusic  ...  5000     121.8958
+54   saiteja      stress  ...  5000     124.7654
+55   saiteja   waterfall  ...  5000     123.7986
+
+[56 rows x 6 columns]
+[DONE] 2/11 - Load EEG+ECG WAV files
+
+------------------------------------------------------------
+[RUN] 3/11 - Parse events
+------------------------------------------------------------
+[EEG_ECG_LLM_RAG] Parsing events...
+[EEG_ECG_LLM_RAG] Saved ep.parquet → /Users/manoharazalki/EEG-ECG-Music/artifacts/ep.parquet
+     subject  ...                                        events_path
+0      ankit  ...  /Users/manoharazalki/EEG-ECG-Music/data/Anit_m...
+1      ankit  ...  /Users/manoharazalki/EEG-ECG-Music/data/Anit_m...
+2      ankit  ...  /Users/manoharazalki/EEG-ECG-Music/data/Anit_m...
+3      ankit  ...  /Users/manoharazalki/EEG-ECG-Music/data/Anit_m...
+4      ankit  ...  /Users/manoharazalki/EEG-ECG-Music/data/Anit_m...
+..       ...  ...                                                ...
+659  saiteja  ...  /Users/manoharazalki/EEG-ECG-Music/data/saitej...
+660  saiteja  ...  /Users/manoharazalki/EEG-ECG-Music/data/saitej...
+661  saiteja  ...  /Users/manoharazalki/EEG-ECG-Music/data/saitej...
+662  saiteja  ...  /Users/manoharazalki/EEG-ECG-Music/data/saitej...
+663  saiteja  ...  /Users/manoharazalki/EEG-ECG-Music/data/saitej...
+
+[664 rows x 7 columns]
+[DONE] 3/11 - Parse events
+
+------------------------------------------------------------
+[RUN] 4/11 - Signal Processsing
+------------------------------------------------------------
+[DONE] 4/11 - Signal Processsing
+
+------------------------------------------------------------
+[RUN] 5/11 - Compute EEG features
+------------------------------------------------------------
+[EEG_ECG_LLM_RAG] Computing EEG features per epoch...
+[EEG_ECG_LLM_RAG] Saved EEG features → /Users/manoharazalki/EEG-ECG-Music/artifacts/eeg_features.parquet
+     subject   condition eye_state  ...  beta_rel         gamma  gamma_rel
+0      ankit  meditation    closed  ...  0.277552  1.033497e-07   0.050365
+1      ankit  meditation      open  ...  0.418064  1.002002e-07   0.118337
+2      ankit  meditation    closed  ...  0.234489  1.046272e-07   0.047851
+3      ankit  meditation      open  ...  0.319636  1.218499e-07   0.121376
+4      ankit  meditation    closed  ...  0.251064  1.216302e-07   0.065439
+..       ...         ...       ...  ...       ...           ...        ...
+603  saiteja   waterfall    closed  ...  0.154397  3.919725e-07   0.007642
+604  saiteja   waterfall      open  ...  0.183016  5.144474e-07   0.005084
+605  saiteja   waterfall    closed  ...  0.172048  3.868303e-07   0.003768
+606  saiteja   waterfall    closed  ...  0.166135  4.162017e-07   0.004063
+607  saiteja   waterfall      open  ...  0.172549  4.529313e-07   0.004412
+
+[608 rows x 16 columns]
+[DONE] 5/11 - Compute EEG features
+
+------------------------------------------------------------
+[RUN] 6/11 - Compute ECG features
+------------------------------------------------------------
+[EEG_ECG_LLM_RAG] Computing ECG features per epoch...
+[EEG_ECG_LLM_RAG] Saved ECG features → /Users/manoharazalki/EEG-ECG-Music/artifacts/ecg_features.parquet
+     subject   condition eye_state  ...       rmssd        sdnn      pnn50
+0      ankit  meditation    closed  ...   18.737663   24.464878   0.000000
+1      ankit  meditation      open  ...   19.938656   19.713980   0.000000
+2      ankit  meditation    closed  ...   16.308280   22.486489   0.000000
+3      ankit  meditation      open  ...   21.508680   29.370804   0.000000
+4      ankit  meditation    closed  ...   17.684326   17.160010   0.000000
+..       ...         ...       ...  ...         ...         ...        ...
+603  saiteja   waterfall    closed  ...  196.170523  127.074871  85.714286
+604  saiteja   waterfall      open  ...   69.386598   52.004914  50.000000
+605  saiteja   waterfall    closed  ...  214.890323  141.547845  81.818182
+606  saiteja   waterfall    closed  ...  159.015947   97.416304  85.714286
+607  saiteja   waterfall      open  ...  190.865406  136.189039  66.666667
+
+[608 rows x 11 columns]
+[DONE] 6/11 - Compute ECG features
+
+------------------------------------------------------------
+[RUN] 7/11 - Build feature database
+------------------------------------------------------------
+[EEG_ECG_LLM_RAG] Building unified neuro-feature corpus...
+[EEG_ECG_LLM_RAG] Saved corpus → /Users/manoharazalki/EEG-ECG-Music/artifacts/corpus.parquet
+[EEG_ECG_LLM_RAG] Total epochs: 608
+  subject   condition eye_state state_x  ...         hr      rmssd       sdnn  pnn50
+0   ankit  meditation    closed  closed  ...  85.178876  18.737663  24.464878    0.0
+1   ankit  meditation      open    open  ...  84.889643  19.938656  19.713980    0.0
+2   ankit  meditation    closed  closed  ...  88.028169  16.308280  22.486489    0.0
+3   ankit  meditation      open    open  ...  89.928058  21.508680  29.370804    0.0
+4   ankit  meditation    closed  closed  ...  87.604030  17.684326  17.160010    0.0
+
+[5 rows x 22 columns]
+[DONE] 7/11 - Build feature database
+
+------------------------------------------------------------
+[RUN] 8/11 - Train feeling model
+------------------------------------------------------------
+Loading corpus...
+Generating feeling labels...
+Normalizing per subject...
+Training global LOSO model...
+Training per-subject fallback models...
+Saving models...
+ML training complete.
+Global model saved to: /Users/manoharazalki/EEG-ECG-Music/artifacts/ml_global_feeling_model.pkl
+Subject models saved to: /Users/manoharazalki/EEG-ECG-Music/artifacts/ml_subject_models.pkl
+[DONE] 8/11 - Train feeling model
+
+------------------------------------------------------------
+[RUN] 9/11 - Build RAG chunks
+------------------------------------------------------------
+[EEG_ECG_LLM_RAG] Building RAG text chunks...
+[EEG_ECG_LLM_RAG] ✔ RAG chunks saved → /Users/manoharazalki/EEG-ECG-Music/artifacts/chunks.parquet
+[EEG_ECG_LLM_RAG] Total chunks: 3350
+[DONE] 9/11 - Build RAG chunks
+
+------------------------------------------------------------
+[RUN] 10/11 - Create embeddings
+------------------------------------------------------------
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[EEG_ECG_LLM_RAG] Creating embeddings...
+[EEG_ECG_LLM_RAG] Loaded 3350 RAG chunks.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 8406.89it/s]
+[EEG_ECG_LLM_RAG] Embeddings + metadata saved.
+[DONE] 10/11 - Create embeddings
+
+------------------------------------------------------------
+[RUN] 11/11 - RAG Query Engine
+------------------------------------------------------------
+[DONE] 11/11 - RAG Query Engine
+
+------------------------------------------------------------
+[RUN] 12/12 - Generate neuro report
+------------------------------------------------------------
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[EEG_ECG_LLM_RAG] Initializing NeuroRAG...
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 20460.99it/s]
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+[EEG_ECG_LLM_RAG] Querying LLM for neuro report...
+
+=== NEURO REPORT ===
+
+### 1. Comparison of Stress Levels Across Conditions
+
+In the provided data, we only have information for the "Meditation Music" condition for the subjects Manohar and Atul. Manohar consistently shows EEG and ECG metrics indicative of a relaxed state, while Atul exhibits signs of tension. 
+
+- **Manohar**: 
+  - EEG metrics show a predominance of alpha activity (0.479 to 0.862) across epochs, particularly in the closed-eye state, which is associated with relaxation and meditative states.
+  - ECG metrics indicate a heart rate (HR) ranging from 61.2 to 66.6 bpm, with high RMSSD values (79.8 to 138.2 ms) and pNN50 percentages (66.7% to 88.9%), suggesting a parasympathetic dominance and a relaxed state.
+
+- **Atul**: 
+  - Exhibits a lower alpha band (0.276) and higher heart rate (91.0 bpm) with low HRV metrics (RMSSD=24.6 ms, pNN50=6.2%), indicating a stress response.
+
+Without data from other conditions (No Music, Stress BEEP, Waterfall), we cannot make direct comparisons, but the current findings suggest that meditation music may facilitate relaxation in Manohar while failing to do so in Atul.
+
+### 2. Eye-Open vs. Eye-Closed Modulation of Alpha and Other Bands
+
+The modulation of EEG bands by eye state is well-documented:
+
+- **Eye-Closed State**: 
+  - Manohar's alpha band activity increases significantly when his eyes are closed (0.740 to 0.862), which is typical as closing the eyes reduces visual stimuli and promotes relaxation and internal focus. 
+  - Other bands (delta, theta, beta, gamma) show a decrease in power, indicating a shift towards a more relaxed and meditative state.
+
+- **Eye-Open State**: 
+  - In the open-eye condition, alpha activity is lower (0.479 to 0.510), which is expected as visual processing and external stimuli can inhibit alpha production. 
+  - The presence of higher beta activity (0.318 to 0.296) in the open state may reflect increased cognitive engagement or alertness.
+
+This suggests that closing the eyes during meditation enhances alpha activity, promoting relaxation and reducing cognitive load.
+
+### 3. Interpretation of Heart Rate and HRV Changes Across Conditions
+
+- **Heart Rate (HR)**: 
+  - Manohar's HR remains relatively stable (61.2 to 66.6 bpm) across epochs, indicating a calm physiological state. In contrast, Atul's elevated HR (91.0 bpm) suggests a stress response, likely due to the inability to relax during meditation.
+
+- **Heart Rate Variability (HRV)**: 
+  - Manohar's HRV metrics (RMSSD and pNN50) are high, indicating robust parasympathetic activity and a relaxed state. Higher HRV is associated with better emotional regulation and resilience to stress.
+  - Atul's low HRV metrics (RMSSD=24.6 ms, pNN50=6.2%) indicate a sympathetic dominance, which is often linked to stress and anxiety.
+
+### 4. Integrated Brain–Heart Axis Explanation
+
+The brain-heart axis refers to the bidirectional communication between the brain and the heart, influenced by autonomic nervous system activity. 
+
+- **EEG Activity**: The predominance of alpha waves in Manohar during meditation suggests a state of relaxation and reduced cognitive load, which is associated with increased parasympathetic activity. This state can lead to lower heart rates and higher HRV, indicating a well-regulated autonomic response.
+
+- **ECG Metrics**: The heart responds to the brain's state; as Manohar's brain enters a relaxed state (high alpha), his heart rate decreases, and HRV increases, reflecting a calm physiological state. Conversely, Atul's elevated heart rate and low HRV indicate a stress response, likely due to insufficient relaxation during meditation.
+
+### 5. Relation to Stress Reduction and Relaxation
+
+The findings suggest that meditation music can effectively promote relaxation, as evidenced by Manohar's EEG and ECG metrics. The increase in alpha activity and high HRV indicate a shift towards a parasympathetic state, which is conducive to stress reduction. 
+
+In contrast, Atul's experience highlights that not all individuals respond similarly to meditation music, as evidenced by his elevated stress markers. This variability underscores the importance of personalized approaches in stress reduction techniques, as individual differences in response to meditation can significantly impact outcomes. 
+
+Overall, these findings support the notion that meditation, particularly with music, can facilitate relaxation and reduce stress, but individual differences must be considered for effective implementation.
+[DONE] 12/12 - Generate neuro report
+
+============================================================
+   PIPELINE COMPLETE
+   Logs saved to logs/pipeline.log
+============================================================
+[RUN] Launching Streamlit dashboard...
+2026-07-28 13:58:43.152 Uvicorn server started on :::8501
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://172.16.108.78:8501
+
+  Help agents write better Streamlit apps?
+  Install the official Streamlit skills by running streamlit skills in your terminal.
+
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[EEG_ECG_LLM_RAG] Initializing NeuroRAG...
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 6060.96it/s]
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+2026-07-28 14:53:50.235 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+2026-07-28 14:56:34.135 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+/Users/manoharazalki/EEG-ECG-Music/.venv/lib/python3.11/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but RandomForestClassifier was fitted with feature names
+  warnings.warn(
+2026-07-28 15:08:24.886 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
