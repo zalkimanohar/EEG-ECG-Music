@@ -65,6 +65,10 @@ pip install rich
 
 pip install python-dotenv
 
+pip install graphviz
+brew install graphviz   # macOS
+# sudo apt install graphviz  # Linux
+
 echo "[4/8] Fixing DATA_DIR path in config.py..."
 
 # ============================================================
@@ -82,6 +86,7 @@ pip install sentence-transformers
 
 # Create logs folder if missing
 mkdir -p logs
+
 
 
 # Start logging
